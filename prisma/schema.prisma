@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+model InventoryItem {
+  id        Int      @id @default(autoincrement())
+  name      String
+  category  String
+  cost      Float    @default(0)
+  price     Float
+  qty       Int      @default(0)
+  minQty    Int      @default(3)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoiceItems InvoiceItem[]
+}
+
+model Invoice {
+  id         Int      @id @default(autoincrement())
+  customer   String
+  method     String
+  total      Float
+  paid       Float    @default(0)
+  remaining  Float    @default(0)
+  createdAt  DateTime @default(now())
+
+  items InvoiceItem[]
+}
+
+model InvoiceItem {
+  id          Int            @id @default(autoincrement())
+  invoiceId   Int
+  inventoryId Int?
+  name        String
+  qty         Int
+  price       Float
+
+  invoice   Invoice        @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  inventory InventoryItem? @relation(fields: [inventoryId], references: [id])
+}
+
+model Debt {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?
+  amount    Float
+  note      String?
+  settled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transfer {
+  id        Int      @id @default(autoincrement())
+  type      String
+  customer  String?
+  amount    Float
+  fee       Float    @default(0)
+  createdAt DateTime @default(now())
+}
+
+model UsedDevice {
+  id        Int      @id @default(autoincrement())
+  name      String
+  condition String
+  buyPrice  Float
+  sellPrice Float
+  notes     String?
+  sold      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Balance {
+  id          Int      @id @default(1)
+  amanBefore  Float    @default(0)
+  amanNow     Float    @default(0)
+  forriBefore Float    @default(0)
+  forriNow    Float    @default(0)
+  updatedAt   DateTime @updatedAt
+}
+
+model Shift {
+  id           Int      @id @default(autoincrement())
+  startTime    DateTime
+  endTime      DateTime?
+  totalSales   Float    @default(0)
+  totalFees    Float    @default(0)
+  netIncome    Float    @default(0)
+  invoiceCount Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
